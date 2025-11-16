@@ -8,9 +8,8 @@ check_access(['Admin', 'Manager', 'Cashier']);
 
 header('Content-Type: application/json');
 
-$action = $_GET['action'] ?? '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $action = $_GET['action'] ?? '';
     switch ($action) {
         case 'get_categories':
             $result = $mysqli->query("SELECT category_id, category_name FROM categories ORDER BY category_name ASC");
@@ -27,14 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 }
 
-// --- Sale Processing Endpoint ---
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    // This part should handle the GET requests for search, so we check for POST explicitly for sale processing.
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
-        exit;
-    }
-} else {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
     $user_id = $_SESSION['user_id'];
     $items = $_POST['items'] ?? [];
@@ -53,5 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $mysqli->rollback();
         echo json_encode(['status' => 'error', 'message' => 'Transaction failed: ' . $e->getMessage()]);
     }
+    exit;
 }
+
+// If no action is matched, return an error
+echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
 ?>
