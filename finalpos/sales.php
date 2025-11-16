@@ -41,6 +41,7 @@ $products = $products_result->fetch_all(MYSQLI_ASSOC);
             <thead>
                 <tr>
                     <th style="width: 25%;">Product</th>
+                    <th style="width: 10%;">Quantity</th>
                     <th>MRP</th>
                     <th>GST Rate (%)</th>
                     <th>Price (excl. Tax)</th>
@@ -94,6 +95,7 @@ foreach ($products as $product) {
                 <?php echo $product_options_html; ?>
             </select>
         </td>
+        <td><input type="number" class="form-control quantity" name="items[__INDEX__][quantity]" value="1" min="1"></td>
         <td><input type="text" class="form-control mrp" readonly></td>
         <td><input type="text" class="form-control gst-rate" readonly></td>
         <td><input type="text" class="form-control price-excl-tax" readonly></td>
@@ -122,6 +124,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addItemBtn.addEventListener('click', addBillingRow);
 
+    function calculateRow(row) {
+        const quantity = parseInt(row.querySelector('.quantity').value) || 0;
+        const mrp = parseFloat(row.querySelector('.mrp').value) || 0;
+        const taxRate = (parseFloat(row.querySelector('.gst-rate').value) || 0) / 100;
+
+        if (quantity > 0 && mrp > 0) {
+            const singleItemTaxAmount = mrp - (mrp / (1 + taxRate));
+            const singleItemPriceExclTax = mrp - singleItemTaxAmount;
+
+            const totalAmount = mrp * quantity;
+            const totalTaxAmount = singleItemTaxAmount * quantity;
+            const totalPriceExclTax = singleItemPriceExclTax * quantity;
+
+            row.querySelector('.price-excl-tax').value = totalPriceExclTax.toFixed(2);
+            row.querySelector('.tax-amount').value = totalTaxAmount.toFixed(2);
+            row.querySelector('.total-amount').value = totalAmount.toFixed(2);
+        } else {
+            row.querySelector('.price-excl-tax').value = '0.00';
+            row.querySelector('.tax-amount').value = '0.00';
+            row.querySelector('.total-amount').value = '0.00';
+        }
+        updateTotals();
+    }
+
     billingItemsTable.addEventListener('change', function(e) {
         if (e.target.classList.contains('product-select')) {
             const row = e.target.closest('tr');
@@ -129,28 +155,26 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!productId) {
                 row.querySelector('.mrp').value = '';
                 row.querySelector('.gst-rate').value = '';
-                row.querySelector('.price-excl-tax').value = '';
-                row.querySelector('.tax-amount').value = '';
-                row.querySelector('.total-amount').value = '';
-                updateTotals();
+                calculateRow(row);
                 return;
             };
 
             fetch(`ajax_sales_entry.php?action=get_product_details&product_id=${productId}`)
                 .then(response => response.json())
                 .then(data => {
-                    const mrp = parseFloat(data.mrp);
-                    const taxRate = parseFloat(data.tax_rate);
-                    const taxAmount = mrp - (mrp / (1 + taxRate));
-                    const priceExclTax = mrp - taxAmount;
-
-                    row.querySelector('.mrp').value = mrp.toFixed(2);
-                    row.querySelector('.gst-rate').value = (taxRate * 100).toFixed(2);
-                    row.querySelector('.price-excl-tax').value = priceExclTax.toFixed(2);
-                    row.querySelector('.tax-amount').value = taxAmount.toFixed(2);
-                    row.querySelector('.total-amount').value = mrp.toFixed(2);
-                    updateTotals();
+                    if (data && data.mrp) {
+                        row.querySelector('.mrp').value = parseFloat(data.mrp).toFixed(2);
+                        row.querySelector('.gst-rate').value = (parseFloat(data.tax_rate) * 100).toFixed(2);
+                        calculateRow(row);
+                    }
                 });
+        }
+    });
+
+    billingItemsTable.addEventListener('input', function(e) {
+        if (e.target.classList.contains('quantity')) {
+            const row = e.target.closest('tr');
+            calculateRow(row);
         }
     });
 
