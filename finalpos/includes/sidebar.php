@@ -37,8 +37,3 @@ $current_role = $_SESSION['role_name'] ?? '';
         </div>
     </div>
 </nav>
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <script>
-      feather.replace()
-    </script>
