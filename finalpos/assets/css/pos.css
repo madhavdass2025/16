@@ -1,0 +1,5 @@
+#pos-container { display: flex; height: calc(100vh - 150px); }
+#product-selection { width: 60%; padding-right: 15px; overflow-y: auto; }
+#cart-panel { width: 40%; }
+#category-grid, #product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.category-btn, .product-btn { height: 80px; }

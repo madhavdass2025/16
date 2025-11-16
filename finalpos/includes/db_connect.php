@@ -1,10 +1,10 @@
 <?php
 // IMPORTANT: PLEASE UPDATE THESE CREDENTIALS
 // This is a placeholder configuration. Replace with your actual database details.
-define('DB_HOST', 'your_database_host');
-define('DB_USER', 'your_database_user');
-define('DB_PASS', 'your_database_password');
-define('DB_NAME', 'your_database_name');
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'finalpos');
 
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 

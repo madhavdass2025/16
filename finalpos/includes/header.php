@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pet Clinic Pharmacy POS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <?php if (basename($_SERVER['PHP_SELF']) == 'sales.php'): ?>
+        <link href="assets/css/pos.css" rel="stylesheet">
+    <?php endif; ?>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
