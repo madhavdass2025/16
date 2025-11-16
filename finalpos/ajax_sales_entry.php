@@ -50,8 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($item);
 
         $invoice_number = 'INV-' . time();
-        $stmt_invoice = $mysqli->prepare("INSERT INTO sales_invoices (invoice_number, invoice_date, customer_id, user_id, net_amount, payment_status) VALUES (?, ?, ?, ?, ?, 'Paid')");
-        $stmt_invoice->bind_param("ssiids", $invoice_number, $invoice_date, $customer_id, $user_id, $total_amount);
+        $payment_status = 'Paid';
+        $stmt_invoice = $mysqli->prepare("INSERT INTO sales_invoices (invoice_number, invoice_date, customer_id, user_id, net_amount, payment_status) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt_invoice->bind_param("ssiids", $invoice_number, $invoice_date, $customer_id, $user_id, $total_amount, $payment_status);
         $stmt_invoice->execute();
         $invoice_id = $mysqli->insert_id;
 
