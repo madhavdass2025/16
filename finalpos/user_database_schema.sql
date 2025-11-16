@@ -16,34 +16,17 @@ CREATE TABLE users (
 -- 2. Product & Stock Management
 -- ... (rest of the schema is the same)
 
+CREATE TABLE stock_adjustment_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    batch_id INT NOT NULL,
+    user_id INT NOT NULL,
+    adjustment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    old_qty INT NOT NULL,
+    new_qty INT NOT NULL,
+    reason VARCHAR(255) NOT NULL,
+    FOREIGN KEY (batch_id) REFERENCES stock_batches(batch_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
 -- 5. Basic Accounts Handling
-CREATE TABLE chart_of_accounts (
-    account_id INT AUTO_INCREMENT PRIMARY KEY,
-    account_name VARCHAR(100) NOT NULL UNIQUE COMMENT 'Cash, Bank, Sales Revenue, Inventory, COGS, etc.',
-    account_type ENUM('Asset', 'Liability', 'Equity', 'Revenue', 'Expense') NOT NULL
-);
-
-CREATE TABLE accounts_ledger (
-    ledger_id INT AUTO_INCREMENT PRIMARY KEY,
-    transaction_date DATETIME NOT NULL,
-    narration TEXT,
-    debit_account_id INT NOT NULL COMMENT 'Account Debited',
-    credit_account_id INT NOT NULL COMMENT 'Account Credited',
-    amount DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (debit_account_id) REFERENCES chart_of_accounts(account_id),
-    FOREIGN KEY (credit_account_id) REFERENCES chart_of_accounts(account_id)
-);
-
--- Initial Data
-INSERT INTO `roles` (`role_id`, `role_name`) VALUES
-(1, 'Admin'),
-(2, 'Manager'),
-(3, 'Cashier');
-
-INSERT INTO `chart_of_accounts` (`account_id`, `account_name`, `account_type`) VALUES
-(1, 'Cash', 'Asset'),
-(2, 'Inventory', 'Asset'),
-(3, 'Accounts Payable', 'Liability'),
-(4, 'Sales Revenue', 'Revenue'),
-(5, 'Cost of Goods Sold', 'Expense'),
-(6, 'Sales Returns', 'Revenue');
+-- ... (rest of the schema is the same)

@@ -3,10 +3,12 @@
 $nav_items = [
     'Dashboard' => ['href' => 'dashboard.php', 'icon' => 'home', 'roles' => ['Admin', 'Manager', 'Cashier']],
     'Users' => ['href' => 'users.php', 'icon' => 'users', 'roles' => ['Admin']],
+    'Customers' => ['href' => 'customers.php', 'icon' => 'users', 'roles' => ['Admin', 'Manager', 'Cashier']],
     'Categories' => ['href' => 'categories.php', 'icon' => 'tag', 'roles' => ['Admin', 'Manager']],
     'Products' => ['href' => 'products.php', 'icon' => 'shopping-cart', 'roles' => ['Admin', 'Manager']],
     'Suppliers' => ['href' => 'suppliers.php', 'icon' => 'truck', 'roles' => ['Admin', 'Manager']],
     'Inventory' => ['href' => 'inventory.php', 'icon' => 'package', 'roles' => ['Admin', 'Manager']],
+    'Stock Adjustments' => ['href' => 'stock_adjustments.php', 'icon' => 'tool', 'roles' => ['Admin', 'Manager']],
     'Purchase' => ['href' => 'purchase_entry.php', 'icon' => 'file-text', 'roles' => ['Admin', 'Manager']],
     'Sales' => ['href' => 'sales.php', 'icon' => 'file', 'roles' => ['Admin', 'Manager', 'Cashier']],
     'Reports' => ['href' => 'reports.php', 'icon' => 'bar-chart-2', 'roles' => ['Admin', 'Manager']],
