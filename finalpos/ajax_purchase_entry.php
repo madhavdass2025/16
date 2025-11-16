@@ -2,6 +2,7 @@
 require_once 'includes/db_connect.php';
 require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
+require_once 'includes/config.php';
 
 check_access(['Admin', 'Manager']);
 
@@ -70,9 +71,7 @@ try {
     }
 
     // Ledger Entry: Debit Inventory, Credit Accounts Payable
-    $inventory_acc_id = 2; // From the initial data
-    $ap_acc_id = 3; // From the initial data
-    record_ledger_entry($mysqli, $inventory_acc_id, $ap_acc_id, $total_amount, "Purchase Invoice #{$invoice_number}");
+    record_ledger_entry($mysqli, INVENTORY_ACCOUNT_ID, ACCOUNTS_PAYABLE_ID, $total_amount, "Purchase Invoice #{$invoice_number}");
 
     $mysqli->commit();
     echo json_encode(['status' => 'success', 'message' => 'Purchase recorded successfully!']);

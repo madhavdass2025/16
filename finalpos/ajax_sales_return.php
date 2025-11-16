@@ -2,6 +2,7 @@
 require_once 'includes/db_connect.php';
 require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
+require_once 'includes/config.php';
 
 check_access(['Admin', 'Manager']);
 
@@ -70,9 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Ledger Entry: Debit Sales Return, Credit Cash
-        $sales_return_acc_id = 6;
-        $cash_acc_id = 1;
-        record_ledger_entry($mysqli, $sales_return_acc_id, $cash_acc_id, $total_refund_amount, "Sales Return for Invoice #{$invoice_id}");
+        record_ledger_entry($mysqli, SALES_RETURNS_ID, CASH_ACCOUNT_ID, $total_refund_amount, "Sales Return for Invoice #{$invoice_id}");
 
         $mysqli->commit();
         echo json_encode(['status' => 'success', 'message' => 'Sales return processed.']);

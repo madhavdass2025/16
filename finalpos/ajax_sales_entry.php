@@ -2,6 +2,7 @@
 require_once 'includes/db_connect.php';
 require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
+require_once 'includes/config.php';
 
 check_access(['Admin', 'Manager', 'Cashier']);
 
@@ -86,14 +87,10 @@ try {
     }
 
     // Ledger Entry: Debit Cash, Credit Sales Revenue
-    $cash_acc_id = 1; // From initial data
-    $sales_rev_acc_id = 4; // From initial data
-    record_ledger_entry($mysqli, $cash_acc_id, $sales_rev_acc_id, $total_amount, "Sale Invoice #{$invoice_number}");
+    record_ledger_entry($mysqli, CASH_ACCOUNT_ID, SALES_REVENUE_ID, $total_amount, "Sale Invoice #{$invoice_number}");
 
     // Ledger Entry: Debit COGS, Credit Inventory
-    $cogs_acc_id = 5; // From initial data
-    $inventory_acc_id = 2; // From initial data
-    record_ledger_entry($mysqli, $cogs_acc_id, $inventory_acc_id, $total_cogs, "COGS for Sale Invoice #{$invoice_number}");
+    record_ledger_entry($mysqli, COGS_ID, INVENTORY_ACCOUNT_ID, $total_cogs, "COGS for Sale Invoice #{$invoice_number}");
 
     $mysqli->commit();
     echo json_encode(['status' => 'success', 'message' => 'Sale processed successfully!']);
