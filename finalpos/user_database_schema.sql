@@ -1,4 +1,3 @@
-
 -- 1. User Management
 CREATE TABLE roles (
     role_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -9,7 +8,7 @@ CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
+    password TEXT NOT NULL,
     role_id INT,
     FOREIGN KEY (role_id) REFERENCES roles(role_id)
 );

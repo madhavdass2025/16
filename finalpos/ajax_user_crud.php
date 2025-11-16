@@ -28,17 +28,15 @@ switch ($action) {
 
         if ($user_id > 0) { // Update
             if (!empty($password)) {
-                $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $mysqli->prepare("UPDATE users SET name = ?, email = ?, role_id = ?, password_hash = ? WHERE user_id = ?");
-                $stmt->bind_param("ssisi", $name, $email, $role_id, $password_hash, $user_id);
+                $stmt = $mysqli->prepare("UPDATE users SET name = ?, email = ?, role_id = ?, password = ? WHERE user_id = ?");
+                $stmt->bind_param("ssisi", $name, $email, $role_id, $password, $user_id);
             } else {
                 $stmt = $mysqli->prepare("UPDATE users SET name = ?, email = ?, role_id = ? WHERE user_id = ?");
                 $stmt->bind_param("ssii", $name, $email, $role_id, $user_id);
             }
         } else { // Insert
-            $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $mysqli->prepare("INSERT INTO users (name, email, role_id, password_hash) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("ssis", $name, $email, $role_id, $password_hash);
+            $stmt = $mysqli->prepare("INSERT INTO users (name, email, role_id, password) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssis", $name, $email, $role_id, $password);
         }
 
         if ($stmt->execute()) {

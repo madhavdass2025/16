@@ -16,16 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $stmt = $mysqli->prepare("SELECT u.user_id, u.password_hash, r.role_name FROM users u JOIN roles r ON u.role_id = r.role_id WHERE u.email = ?");
+    $stmt = $mysqli->prepare("SELECT u.user_id, u.password, r.role_name FROM users u JOIN roles r ON u.role_id = r.role_id WHERE u.email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($user_id, $hashed_password, $role_name);
+        $stmt->bind_result($user_id, $stored_password, $role_name);
         $stmt->fetch();
 
-        if (password_verify($password, $hashed_password)) {
+        if ($password === $stored_password) {
             $_SESSION['user_id'] = $user_id;
             $_SESSION['role_name'] = $role_name;
             header("Location: dashboard.php");
