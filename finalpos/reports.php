@@ -12,7 +12,10 @@ include 'includes/sidebar.php';
         <h1 class="h2">Reports</h1>
     </div>
 
-    <!-- ... (rest of the reports content) -->
+    <div class="list-group">
+        <a href="ledger_report.php" class="list-group-item list-group-item-action">Ledger Report</a>
+        <!-- Add links to other reports here as they are created -->
+    </div>
 </main>
 
 <?php

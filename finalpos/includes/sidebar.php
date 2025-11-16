@@ -10,7 +10,9 @@ $nav_items = [
     'Inventory' => ['href' => 'inventory.php', 'icon' => 'package', 'roles' => ['Admin', 'Manager']],
     'Stock Adjustments' => ['href' => 'stock_adjustments.php', 'icon' => 'tool', 'roles' => ['Admin', 'Manager']],
     'Purchase' => ['href' => 'purchase_entry.php', 'icon' => 'file-text', 'roles' => ['Admin', 'Manager']],
+    'Purchase Return' => ['href' => 'purchase_return.php', 'icon' => 'corner-up-left', 'roles' => ['Admin', 'Manager']],
     'Sales' => ['href' => 'sales.php', 'icon' => 'file', 'roles' => ['Admin', 'Manager', 'Cashier']],
+    'Sales Return' => ['href' => 'sales_return.php', 'icon' => 'corner-up-right', 'roles' => ['Admin', 'Manager']],
     'Reports' => ['href' => 'reports.php', 'icon' => 'bar-chart-2', 'roles' => ['Admin', 'Manager']],
 ];
 
