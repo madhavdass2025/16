@@ -9,7 +9,17 @@ check_access(['Admin', 'Manager', 'Cashier']);
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // ... (GET logic remains the same)
+    $action = $_GET['action'] ?? '';
+    switch ($action) {
+        case 'get_product_details':
+            $product_id = (int)$_GET['product_id'];
+            $stmt = $mysqli->prepare("SELECT mrp, tax_rate FROM products WHERE product_id = ?");
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            echo json_encode($result->fetch_assoc());
+            exit;
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,12 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $total_amount = 0;
         $total_cogs = 0;
 
-        // First, validate quantities and calculate totals
-        foreach ($items as &$item) { // Pass by reference to add details
-            $stmt_product = $mysqli->prepare("SELECT mrp, tax_rate FROM products WHERE product_id = ?");
-            $stmt_product->bind_param("i", $item['product_id']);
-            $stmt_product->execute();
-            $product_details = $stmt_product->get_result()->fetch_assoc();
+        $stmt_product_details = $mysqli->prepare("SELECT mrp, tax_rate FROM products WHERE product_id = ?");
+
+        foreach ($items as &$item) {
+            $stmt_product_details->bind_param("i", $item['product_id']);
+            $stmt_product_details->execute();
+            $product_details = $stmt_product_details->get_result()->fetch_assoc();
             $item['mrp'] = $product_details['mrp'];
             $total_amount += $item['quantity'] * $item['mrp'];
         }
