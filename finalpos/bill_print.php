@@ -20,10 +20,10 @@ $invoice = $invoice_query->get_result()->fetch_assoc();
 
 // Fetch invoice items
 $items_query = $mysqli->prepare("
-    SELECT p.product_name, ii.quantity_sold, ii.selling_price_at_sale
+    SELECT p.name, ii.quantity_sold, ii.selling_price_at_sale
     FROM invoice_items ii
     JOIN stock_batches sb ON ii.batch_id = sb.batch_id
-    JOIN products p ON sb.product_id = p.product_id
+    JOIN products p ON sb.product_id = p.Mid
     WHERE ii.invoice_id = ?
 ");
 $items_query->bind_param("i", $invoice_id);
@@ -75,7 +75,7 @@ $items = $items_query->get_result()->fetch_all(MYSQLI_ASSOC);
                         <?php $i = 1; foreach ($items as $item): ?>
                             <tr>
                                 <td><?php echo $i++; ?></td>
-                                <td><?php echo htmlspecialchars($item['product_name']); ?></td>
+                                <td><?php echo htmlspecialchars($item['name']); ?></td>
                                 <td><?php echo $item['quantity_sold']; ?></td>
                                 <td><?php echo number_format($item['selling_price_at_sale'], 2); ?></td>
                                 <td><?php echo number_format($item['quantity_sold'] * $item['selling_price_at_sale'], 2); ?></td>

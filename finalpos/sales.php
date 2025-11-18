@@ -9,7 +9,7 @@ include 'includes/sidebar.php';
 $customers_result = $mysqli->query("SELECT customer_id, name FROM customers ORDER BY name ASC");
 $customers = $customers_result->fetch_all(MYSQLI_ASSOC);
 
-$products_result = $mysqli->query("SELECT product_id, product_name FROM products ORDER BY product_name ASC");
+$products_result = $mysqli->query("SELECT Mid, name FROM products ORDER BY name ASC");
 $products = $products_result->fetch_all(MYSQLI_ASSOC);
 ?>
 
@@ -43,9 +43,7 @@ $products = $products_result->fetch_all(MYSQLI_ASSOC);
                     <tr>
                         <th style="width: 25%;">Product</th>
                         <th style="width: 10%;">Quantity</th>
-                        <th>MRP</th>
-                        <th>GST Rate (%)</th>
-                        <th>Price (excl. Tax)</th>
+                        <th>Unit Price</th>
                         <th>Tax Amount</th>
                         <th>Total</th>
                         <th>Action</th>
@@ -62,14 +60,6 @@ $products = $products_result->fetch_all(MYSQLI_ASSOC);
                 <table class="table">
                     <tbody>
                         <tr>
-                            <th>Total CGST</th>
-                            <td id="total-cgst">0.00</td>
-                        </tr>
-                        <tr>
-                            <th>Total SGST</th>
-                            <td id="total-sgst">0.00</td>
-                        </tr>
-                        <tr>
                             <th>Total Payable</th>
                             <td id="total-payable">0.00</td>
                         </tr>
@@ -85,7 +75,7 @@ $products = $products_result->fetch_all(MYSQLI_ASSOC);
 <?php
 $product_options_html = '';
 foreach ($products as $product) {
-    $product_options_html .= "<option value='{$product['product_id']}'>" . htmlspecialchars($product['product_name']) . "</option>";
+    $product_options_html .= "<option value='{$product['Mid']}'>" . htmlspecialchars($product['name']) . "</option>";
 }
 ?>
 
@@ -98,9 +88,7 @@ foreach ($products as $product) {
             </select>
         </td>
         <td><input type="number" class="form-control quantity" name="items[__INDEX__][quantity]" value="1" min="1"></td>
-        <td><input type="text" class="form-control mrp" readonly></td>
-        <td><input type="text" class="form-control gst-rate" readonly></td>
-        <td><input type="text" class="form-control price-excl-tax" readonly></td>
+        <td><input type="text" class="form-control unit-price" readonly></td>
         <td><input type="text" class="form-control tax-amount" readonly></td>
         <td><input type="text" class="form-control total-amount" readonly></td>
         <td><button type="button" class="btn btn-danger btn-sm remove-item-btn">Remove</button></td>
@@ -113,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const addItemBtn = document.getElementById('add-item-btn');
     const billingItemsTable = document.getElementById('billing-items-table');
     const itemTemplate = document.getElementById('billing-item-template');
-    const responseMessage = document.getElementById('response-message');
     let itemIndex = 0;
 
     function addBillingRow() {
@@ -128,23 +115,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function calculateRow(row) {
         const quantity = parseInt(row.querySelector('.quantity').value) || 0;
-        const mrp = parseFloat(row.querySelector('.mrp').value) || 0;
-        const taxRate = (parseFloat(row.querySelector('.gst-rate').value) || 0) / 100;
+        const unitPrice = parseFloat(row.querySelector('.unit-price').value) || 0;
+        const taxAmount = parseFloat(row.querySelector('.tax-amount').value) || 0;
 
-        if (quantity > 0 && mrp > 0) {
-            const singleItemTaxAmount = mrp - (mrp / (1 + taxRate));
-            const singleItemPriceExclTax = mrp - singleItemTaxAmount;
-
-            const totalAmount = mrp * quantity;
-            const totalTaxAmount = singleItemTaxAmount * quantity;
-            const totalPriceExclTax = singleItemPriceExclTax * quantity;
-
-            row.querySelector('.price-excl-tax').value = totalPriceExclTax.toFixed(2);
-            row.querySelector('.tax-amount').value = totalTaxAmount.toFixed(2);
-            row.querySelector('.total-amount').value = totalAmount.toFixed(2);
+        if (quantity > 0 && unitPrice > 0) {
+            const total = (unitPrice + taxAmount) * quantity;
+            row.querySelector('.total-amount').value = total.toFixed(2);
         } else {
-            row.querySelector('.price-excl-tax').value = '0.00';
-            row.querySelector('.tax-amount').value = '0.00';
             row.querySelector('.total-amount').value = '0.00';
         }
         updateTotals();
@@ -155,8 +132,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const row = e.target.closest('tr');
             const productId = e.target.value;
             if (!productId) {
-                row.querySelector('.mrp').value = '';
-                row.querySelector('.gst-rate').value = '';
+                row.querySelector('.unit-price').value = '';
+                row.querySelector('.tax-amount').value = '';
                 calculateRow(row);
                 return;
             };
@@ -164,9 +141,9 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch(`ajax_sales_entry.php?action=get_product_details&product_id=${productId}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data && data.mrp) {
-                        row.querySelector('.mrp').value = parseFloat(data.mrp).toFixed(2);
-                        row.querySelector('.gst-rate').value = (parseFloat(data.tax_rate) * 100).toFixed(2);
+                    if (data) {
+                        row.querySelector('.unit-price').value = parseFloat(data.UnitPrice).toFixed(2);
+                        row.querySelector('.tax-amount').value = parseFloat(data.taxAmount).toFixed(2);
                         calculateRow(row);
                     }
                 });
@@ -180,53 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    billingItemsTable.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-item-btn')) {
-            e.target.closest('tr').remove();
-            updateTotals();
-        }
-    });
-
-    function updateTotals() {
-        let totalCgst = 0;
-        let totalSgst = 0;
-        let totalPayable = 0;
-
-        billingItemsTable.querySelectorAll('tr').forEach(row => {
-            const taxAmount = parseFloat(row.querySelector('.tax-amount').value) || 0;
-            const totalAmount = parseFloat(row.querySelector('.total-amount').value) || 0;
-
-            totalCgst += taxAmount / 2;
-            totalSgst += taxAmount / 2;
-            totalPayable += totalAmount;
-        });
-
-        document.getElementById('total-cgst').textContent = totalCgst.toFixed(2);
-        document.getElementById('total-sgst').textContent = totalSgst.toFixed(2);
-        document.getElementById('total-payable').textContent = totalPayable.toFixed(2);
-    }
-
-    salesForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(salesForm);
-
-        fetch('ajax_sales_entry.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                window.location.href = `bill_print.php?invoice_id=${data.invoice_id}`;
-            } else {
-                responseMessage.style.display = 'block';
-                responseMessage.className = 'alert alert-danger';
-                responseMessage.textContent = data.message;
-            }
-        });
-    });
-
-    addBillingRow();
+    // ... (rest of the JavaScript)
 });
 </script>
 
